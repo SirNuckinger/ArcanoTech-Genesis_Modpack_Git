@@ -1,7 +1,7 @@
 
 name: Java CI with Gradle
 
-on: workflow_run
+on: release
 
 jobs:
   build:
