@@ -1,0 +1,18 @@
+#Mon Aug 11 12:42:15 CEST 2025
+shadowDistance=128.0
+VOXEL_VOLUME_SIZE=128
+BLOOM=false
+WATER_NORMALS=0
+VC=false
+GENERATED_NORMALS=false
+GENERATED_SPECULAR=false
+END_CLOUDY_FOG=false
+FXAA=true
+shadowMapResolution=1024
+LPV_FOG=false
+NETHER_CLOUDY_FOG=false
+VL=false
+VPS=false
+REFRACTION=false
+AURORA=false
+VL_SAMPLES=7
