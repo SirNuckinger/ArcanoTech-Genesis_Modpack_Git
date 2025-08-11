@@ -5,11 +5,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: Archive Release
+    - name: Release_client
       uses: thedoctor0/zip-release@0.7.5
       with:
         type: 'zip'
-        filename: 'release.zip'
+        filename: 'release_client.zip'
         exclusions: '*.git* /*node_modules/* .editorconfig'
         path: './src/client'
+        
+    - name: Release_server
+       uses: thedoctor0/zip-release@0.7.5
+       with:
+         type: 'zip'
+         filename: 'release_server.zip'
+         exclusions: '*.git* /*node_modules/* .editorconfig'
+         path: './src/client'
         
