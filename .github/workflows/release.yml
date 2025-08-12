@@ -2,7 +2,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version (z. B. b1.0.0 oder r1.0.0)'
+        description: 'Version (z. B. a1.0.0, b1.0.0 oder r1.0.0)'
         required: true
 
 jobs:
@@ -13,9 +13,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set tag name
+      - name: Set tag name and prerelease flag
         id: vars
-        run: echo "TAG_NAME=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+        run: |
+          echo "TAG_NAME=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+          if [[ "${{ github.event.inputs.version }}" == a* || "${{ github.event.inputs.version }}" == b* ]]; then
+            echo "IS_PRERELEASE=true" >> $GITHUB_ENV
+          else
+            echo "IS_PRERELEASE=false" >> $GITHUB_ENV
 
       - name: Create ZIP files
         run: |
@@ -38,6 +43,7 @@ jobs:
           tag_name: ${{ env.TAG_NAME }}
           name: "Release ${{ env.TAG_NAME }}"
           body: "Automatisch generiertes Release für Version ${{ env.TAG_NAME }}"
+          prerelease: ${{ env.IS_PRERELEASE }}
           files: |
             release/ArcanoTechGenesis_client_${{ env.TAG_NAME }}.zip
             release/ArcanoTechGenesis_server_${{ env.TAG_NAME }}.zip
