@@ -1,10 +1,8 @@
-name: Manual Release with Auto-Tag
-
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version (z. B. 1.0.3)'
+        description: 'Version (z. B. b1.0.0 oder r1.0.0)'
         required: true
 
 jobs:
@@ -17,9 +15,15 @@ jobs:
 
       - name: Set tag name
         id: vars
-        run: echo "TAG_NAME=v${{ github.event.inputs.version }}" >> $GITHUB_ENV
+        run: echo "TAG_NAME=${{ github.event.inputs.version }}" >> $GITHUB_ENV
 
-
+      - name: Create ZIP files
+        run: |
+          mkdir -p release
+          cd src/client
+          zip -r ../../release/ArcanoTechGenesis_client_${{ env.TAG_NAME }}.zip .
+          cd ../server
+          zip -r ../../release/ArcanoTechGenesis_server_${{ env.TAG_NAME }}.zip .
 
       - name: Create Git tag
         run: |
@@ -27,21 +31,6 @@ jobs:
           git config user.email "github-actions@github.com"
           git tag $TAG_NAME
           git push origin $TAG_NAME
-
-
-      
-      - name: Create ZIP for client
-        run: |
-          mkdir -p release
-          cd src/client
-          zip -r ../../release/ArcanoTechGenesis_client_${{ env.TAG_NAME }}.zip .
-
-
-      - name: Create ZIP for server
-        run: |
-          cd src/server
-          zip -r ../../release/ArcanoTechGenesis_server_${{ env.TAG_NAME }}.zip .
-
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -54,4 +43,3 @@ jobs:
             release/ArcanoTechGenesis_server_${{ env.TAG_NAME }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
