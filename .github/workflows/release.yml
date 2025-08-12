@@ -1,0 +1,32 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger nur bei Tags wie v1.0.0
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create ZIP for client
+        run: |
+          mkdir -p release
+          zip -r release/ArcanoTechGenesis_client.zip src/client
+
+      - name: Create ZIP for server
+        run: |
+          zip -r release/ArcanoTechGenesis_server.zip src/server
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            release/ArcanoTechGenesis_client.zip
+            release/ArcanoTechGenesis_server.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
