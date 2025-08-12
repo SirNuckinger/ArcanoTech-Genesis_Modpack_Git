@@ -23,7 +23,7 @@ jobs:
           zip -r release/ArcanoTechGenesis_server.zip src/server
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             release/ArcanoTechGenesis_client.zip
