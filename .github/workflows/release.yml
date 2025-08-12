@@ -19,19 +19,6 @@ jobs:
         id: vars
         run: echo "TAG_NAME=v${{ github.event.inputs.version }}" >> $GITHUB_ENV
 
-      
-      - name: Create ZIP for client
-        run: |
-          mkdir -p release
-          cd src/client
-          zip -r ../../release/ArcanoTechGenesis_client.zip .
-
-
-      - name: Create ZIP for server
-        run: |
-          cd src/server
-          zip -r ../../release/ArcanoTechGenesis_server.zip .
-
 
 
       - name: Create Git tag
@@ -41,6 +28,21 @@ jobs:
           git tag $TAG_NAME
           git push origin $TAG_NAME
 
+
+      
+      - name: Create ZIP for client
+        run: |
+          mkdir -p release
+          cd src/client
+          zip -r ../../release/ArcanoTechGenesis_client_${{ env.TAG_NAME }}.zip .
+
+
+      - name: Create ZIP for server
+        run: |
+          cd src/server
+          zip -r ../../release/ArcanoTechGenesis_server_${{ env.TAG_NAME }}.zip .
+
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -48,7 +50,8 @@ jobs:
           name: "Release ${{ env.TAG_NAME }}"
           body: "Automatisch generiertes Release für Version ${{ env.TAG_NAME }}"
           files: |
-            release/ArcanoTechGenesis_client.zip
-            release/ArcanoTechGenesis_server.zip
+            release/ArcanoTechGenesis_client_${{ env.TAG_NAME }}.zip
+            release/ArcanoTechGenesis_server_${{ env.TAG_NAME }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
