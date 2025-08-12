@@ -19,11 +19,20 @@ jobs:
         id: vars
         run: echo "TAG_NAME=v${{ github.event.inputs.version }}" >> $GITHUB_ENV
 
-      - name: Create ZIP files
+      
+      - name: Create ZIP for client
         run: |
           mkdir -p release
-          zip -r release/ArcanoTechGenesis_client.zip src/client
-          zip -r release/ArcanoTechGenesis_server.zip src/server
+          cd src/client
+          zip -r ../../release/ArcanoTechGenesis_client.zip .
+
+
+      - name: Create ZIP for server
+        run: |
+          cd src/server
+          zip -r ../../release/ArcanoTechGenesis_server.zip .
+
+
 
       - name: Create Git tag
         run: |
