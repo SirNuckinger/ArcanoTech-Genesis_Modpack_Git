@@ -3,7 +3,7 @@ name: Create Release
 on:
   push:
     tags:
-      - 'v*'  # Trigger bei Tags wie v1.0.0
+      - 'v*'
 
 jobs:
   build-and-release:
@@ -13,20 +13,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Create ZIP for client
+      - name: Create ZIP files
         run: |
           mkdir -p release
           zip -r release/ArcanoTechGenesis_client.zip src/client
-
-      - name: Create ZIP for server
-        run: |
           zip -r release/ArcanoTechGenesis_server.zip src/server
 
+      - name: Check if release exists
+        id: check_release
+        run: |
+          RELEASE_URL="https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ github.ref_name }}"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" $RELEASE_URL)
+          echo "Release status code: $STATUS"
+          echo "exists=$([ "$STATUS" == "200" ] && echo true || echo false)" >> $GITHUB_OUTPUT
+
       - name: Create GitHub Release
+        if: steps.check_release.outputs.exists == 'false'
         uses: softprops/action-gh-release@v2
         with:
+          name: "Release ${{ github.ref_name }}"
+          tag_name: ${{ github.ref_name }}
+          body: "Automatisch generiertes Release für Version ${{ github.ref_name }}"
           files: |
             release/ArcanoTechGenesis_client.zip
             release/ArcanoTechGenesis_server.zip
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
