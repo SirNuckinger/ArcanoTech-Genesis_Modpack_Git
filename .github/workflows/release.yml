@@ -1,17 +1,23 @@
-name: Create Release
+name: Manual Release with Auto-Tag
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (z. B. 1.0.3)'
+        required: true
 
 jobs:
-  build-and-release:
+  release:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Set tag name
+        id: vars
+        run: echo "TAG_NAME=v${{ github.event.inputs.version }}" >> $GITHUB_ENV
 
       - name: Create ZIP files
         run: |
@@ -19,21 +25,19 @@ jobs:
           zip -r release/ArcanoTechGenesis_client.zip src/client
           zip -r release/ArcanoTechGenesis_server.zip src/server
 
-      - name: Check if release exists
-        id: check_release
+      - name: Create Git tag
         run: |
-          RELEASE_URL="https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ github.ref_name }}"
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" $RELEASE_URL)
-          echo "Release status code: $STATUS"
-          echo "exists=$([ "$STATUS" == "200" ] && echo true || echo false)" >> $GITHUB_OUTPUT
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag $TAG_NAME
+          git push origin $TAG_NAME
 
       - name: Create GitHub Release
-        if: steps.check_release.outputs.exists == 'false'
         uses: softprops/action-gh-release@v2
         with:
-          name: "Release ${{ github.ref_name }}"
-          tag_name: ${{ github.ref_name }}
-          body: "Automatisch generiertes Release für Version ${{ github.ref_name }}"
+          tag_name: ${{ env.TAG_NAME }}
+          name: "Release ${{ env.TAG_NAME }}"
+          body: "Automatisch generiertes Release für Version ${{ env.TAG_NAME }}"
           files: |
             release/ArcanoTechGenesis_client.zip
             release/ArcanoTechGenesis_server.zip
