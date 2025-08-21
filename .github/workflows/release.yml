@@ -16,16 +16,22 @@ jobs:
       - name: Set tag name and prerelease flag
         id: vars
         run: |
-          cat <<EOF >> $GITHUB_ENV
-          TAG_NAME=${{ github.event.inputs.version }}
-          EOF
-      
+          echo "TAG_NAME=${{ github.event.inputs.version }}" >> $GITHUB_ENV
           if [[ "${{ github.event.inputs.version }}" == a* || "${{ github.event.inputs.version }}" == b* ]]; then
             echo "IS_PRERELEASE=true" >> $GITHUB_ENV
           else
             echo "IS_PRERELEASE=false" >> $GITHUB_ENV
           fi
 
+      - name: Update manifest.json version
+        run: |
+          for dir in src/client src/server; do
+            manifest="$dir/manifest.json"
+            if [ -f "$manifest" ]; then
+              # Ersetze die "version"-Zeile in der JSON-Datei
+              sed -i 's/"version": *"[^"]*"/"version": "'${{ env.TAG_NAME }}'"/' "$manifest"
+            fi
+          done
 
       - name: Create ZIP files
         run: |
