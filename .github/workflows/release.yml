@@ -25,13 +25,17 @@ jobs:
 
       - name: Update manifest.json version
         run: |
+          # Entferne den ersten Buchstaben aus der Version
+          CLEAN_VERSION="${{ env.TAG_NAME:1 }}"
+
           for dir in src/client src/server; do
             manifest="$dir/manifest.json"
             if [ -f "$manifest" ]; then
               # Ersetze die "version"-Zeile in der JSON-Datei
-              sed -i 's/"version": *"[^"]*"/"version": "'${{ env.TAG_NAME }}'"/' "$manifest"
+              sed -i 's/"version": *"[^"]*"/"version": "'$CLEAN_VERSION'"/' "$manifest"
             fi
           done
+
 
       - name: Create ZIP files
         run: |
