@@ -1,0 +1,62 @@
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (z. B. a1.0.0, b1.0.0 oder r1.0.0)'
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set tag name and prerelease flag
+        id: vars
+        run: |
+          echo "TAG_NAME=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+          if [[ "${{ github.event.inputs.version }}" == a* || "${{ github.event.inputs.version }}" == b* ]]; then
+            echo "IS_PRERELEASE=true" >> $GITHUB_ENV
+          else
+            echo "IS_PRERELEASE=false" >> $GITHUB_ENV
+          fi
+
+      - name: Update manifest.json version
+        run: |
+          for dir in src/client src/server; do
+            manifest="$dir/manifest.json"
+            if [ -f "$manifest" ]; then
+              # Ersetze die "version"-Zeile in der JSON-Datei
+              sed -i 's/"version": *"[^"]*"/"version": "'${{ env.TAG_NAME }}'"/' "$manifest"
+            fi
+          done
+
+      - name: Create ZIP files
+        run: |
+          mkdir -p release
+          cd src/client
+          zip -r ../../release/ArcanoTechGenesis_client_${{ env.TAG_NAME }}.zip .
+          cd ../server
+          zip -r ../../release/ArcanoTechGenesis_server_${{ env.TAG_NAME }}.zip .
+
+      - name: Create Git tag
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag $TAG_NAME
+          git push origin $TAG_NAME
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          name: "Release ${{ env.TAG_NAME }}"
+          body: "Automatisch generiertes Release für Version ${{ env.TAG_NAME }}"
+          prerelease: ${{ env.IS_PRERELEASE }}
+          files: |
+            release/ArcanoTechGenesis_client_${{ env.TAG_NAME }}.zip
+            release/ArcanoTechGenesis_server_${{ env.TAG_NAME }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
