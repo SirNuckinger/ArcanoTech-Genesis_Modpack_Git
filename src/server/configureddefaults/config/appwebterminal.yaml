@@ -1,0 +1,20 @@
+# Http Server port for ME Web Terminal.
+httpPort: 11451
+
+# Web Terminal Title
+frontendTitle: Applied Web Terminal
+
+# Websocket url for frontend to connect
+# Use "~" for auto detecting
+backendWebsocketEndpoint: ~
+
+# Add PinIn support to languages
+needPinInLanguage:
+  - en_us
+
+# Used api to download minecraft langague files
+# Allowed values:
+# - MOJANG
+# - BMCLAPI
+assetsSource: BMCLAPI
+

@@ -1,0 +1,11 @@
+type = customizablemenus
+
+com.github.alexthe666.iceandfire.client.gui.IceAndFireMainMenu {
+}
+
+com.mr_toad.lib.api.client.screen.config.ToadConfigsScreen {
+}
+
+net.minecraft.client.gui.screens.TitleScreen {
+}
+

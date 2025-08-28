@@ -1,0 +1,9 @@
+
+[welcome_message]
+	#Enable or disable the welcome message
+	enabled = false
+	#The message to be displayed when a player joins the game for the first time
+	text = ""
+	#The URL to be opened when the player clicks the link
+	url = ""
+
